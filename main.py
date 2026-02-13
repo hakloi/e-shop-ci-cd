@@ -1,7 +1,9 @@
 import json
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from pathlib import Path
+
 
 class Product(BaseModel):
     name: str
