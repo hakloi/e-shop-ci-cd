@@ -11,19 +11,31 @@ on:
 
 jobs:
   check:
-    name: Syntax and import check
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-      # --- Python ---
       - uses: actions/setup-python@v4
         with:
           python-version: '3.13'
-      - run: |
+      
+      # installation 
+      - name: Install dependencies
+        run: |
           pip install --upgrade pip
-          pip install fastapi pydantic uvicorn pytest httpx
-      # --- Проверки ---
-      - run: python -m py_compile main.py
-      - run: python -c "import main; print('imported OK')"
-      - run: pytest -v test_main.py
+          pip install fastapi pydantic uvicorn pytest httpx ruff
+      
+      # Syntax check
+      - name: Check syntax
+        run: python -m py_compile main.py
+      
+      # Import app
+      - name: Check import
+        run: python -c "import main; print('imported OK')"
+      
+      # Linter Ruff
+      - name: Lint with Ruff
+        run: ruff check .
+      
+      # Run tests
+      - name: Run tests
+        run: pytest -v test_main.py
