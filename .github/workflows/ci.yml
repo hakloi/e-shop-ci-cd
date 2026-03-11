@@ -1,6 +1,6 @@
 # Учебный CI: проверка синтаксиса и импорта Python-приложения
 
-name: CI
+name: CI/CD
 
 # Когда запускать: при push и PR в ветку main
 on:
@@ -39,3 +39,19 @@ jobs:
       # Run tests
       - name: Run tests
         run: pytest -v test_main.py
+
+  deploy:
+    needs: check        # запускать только если check прошёл
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+      - name: Deploy to Railway
+        run: railway up --service ${{ secrets.RAILWAY_SERVICE || 'web' }}
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
