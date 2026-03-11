@@ -2,7 +2,6 @@
 
 name: CI/CD
 
-# Когда запускать: при push и PR в ветку main
 on:
   push:
     branches: [ main ]
@@ -18,38 +17,37 @@ jobs:
         with:
           python-version: '3.13'
       
-      # installation 
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install fastapi pydantic uvicorn pytest httpx ruff
       
-      # Syntax check
       - name: Check syntax
         run: python -m py_compile main.py
       
-      # Import app
       - name: Check import
         run: python -c "import main; print('imported OK')"
       
-      # Linter Ruff
       - name: Lint with Ruff
         run: ruff check .
       
-      # Run tests
       - name: Run tests
         run: pytest -v test_main.py
 
   deploy:
     needs: check
+    runs-on: ubuntu-latest   # ← ЭТОЙ СТРОКИ НЕ ХВАТАЛО
     steps:
       - uses: actions/checkout@v4
+
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+
       - name: Install Railway CLI
         run: npm install -g @railway/cli
+
       - name: Deploy to Railway
         run: railway up --service ${{ secrets.RAILWAY_SERVICE || 'web' }}
         env:
